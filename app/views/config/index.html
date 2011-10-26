@@ -434,7 +434,13 @@
 					</p>
 				</div>
 			</fieldset>
-
+		<fieldset class="inlineLabels" id="newzbinFieldset">
+			<h3>nzbindex.nl</h3>
+			<div class="ctrlHolder checkbox">
+				<label>Enable</label>
+				<input type="checkbox" name="nzbindexnl.enabled" value="True" ${' checked="checked"' if config.get('nzbindexnl', 'enabled') else ''} />
+			</div>
+		</fieldset>
 		</div>
 
 		<div class="group userscript">
