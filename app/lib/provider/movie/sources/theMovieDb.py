@@ -30,7 +30,7 @@ class theMovieDb(movieBase):
 
         log.debug('TheMovieDB - Searching for movie: %s' % q)
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
+        url = "%s/%s/%s/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.config.get('global', 'language'), self.conf('key'), quote_plus(self.toSearchString(q)))
 
         try:
             log.info('Searching: %s' % url)
@@ -58,7 +58,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.conf('key'), id)
+        url = "%s/%s/%s/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.config.get('global', 'language'), self.conf('key'), id)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout)
@@ -129,7 +129,7 @@ class theMovieDb(movieBase):
             return False
 
         try:
-            url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
+            url = "%s/%s/%s/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.config.get('global', 'language'), self.conf('key'), id)
             data = urllib2.urlopen(url, timeout = self.timeout)
         except:
             data = False
