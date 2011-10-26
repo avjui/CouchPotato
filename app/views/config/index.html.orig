@@ -40,14 +40,6 @@
 					<label>Use updater</label>
 					<input type="checkbox" name="global.updater" value="True" ${' checked="checked"' if config.get('global', 'updater') else ''} />
 				</div>
-				<div class="ctrlHolder">
-                                        <label>Language for Search</label>
-                                        <input type="text" name="global.language" value="${config.get('global', 'language')}" class="textInput large"/>
-                                        <p class="formHint">
-                                                Use "en" or "de"
-                                        </p>
-                                </div> 
-
 			</fieldset>
 			<fieldset class="inlineLabels">
 				<h3>Search</h3>
@@ -62,13 +54,6 @@
 						Comma seperated. NZB/Torrents containing these words are ignored. Example: GERMAN, DUBBED, HDTV
 					</p>
 				</div>
-				<div class="ctrlHolder">
-					<label>Must have words</label>
-					<input type="text" name="global.mustHaveWords" value="${config.get('global', 'mustHaveWords')}" class="textInput large"/>
-					<p class="formHint">
-						For German search use "german"
-					</p>
-				</div> 
 				<div class="ctrlHolder">
 					<label>Preferred words</label>
 					<input type="text" name="global.preferredWords" value="${config.get('global', 'preferredWords')}" class="textInput large"/>
