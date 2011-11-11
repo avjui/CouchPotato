@@ -168,11 +168,15 @@ class nzbBase(rss):
             return True
 
         # if no IMDB link, at least check year range 1
-        if len(movie.name.split(' ')) > 2 and self.correctYear([item.name], movie.year, 1) and self.correctName(item.name, movie.name):
+        if len(movie.name.split(' ')) > 2 and self.correctYear([item.name], movie.year, 0) and self.correctName(item.name, movie.name):
             return True
 
         # if no IMDB link, at least check year
-        if len(movie.name.split(' ')) == 2 and self.correctYear([item.name], movie.year, 0) and self.correctName(item.name, movie.name):
+        #
+        ## dirty fix for year
+        # 
+        # if len(movie.name.split(' ')) == 2 and self.correctYear([item.name], movie.year, 0) and
+        if self.correctName(item.name, movie.name):
             return True
 
         log.info("Wrong: %s, undetermined naming. Looking for '%s (%s)'" % (item.name, movie.name, movie.year))
