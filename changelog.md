@@ -1,6 +1,11 @@
 CouchPotato
 =====
 
+
+Version 35-German
+
+* added few fixes for German user
+
 Version 35 (not released):
 
 * [See diff](https://github.com/RuudBurger/CouchPotato/compare/6ef1e06b33711bcb122c2520fc8c12b2f4b20df4...master)
