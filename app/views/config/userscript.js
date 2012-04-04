@@ -11,7 +11,7 @@
 // @include     http://whiwa.net/stats/movie/*
 // @include     http://trailers.apple.com/trailers/*
 // @include     http://www.themoviedb.org/movie/*
-// @include 	http://www.allocine.fr/film/* 
+// @include     http://www.allocine.fr/film/* 
 // @include     http://trakt.tv/movie/*
 // @include     http://*.trak.tv/movie/*
 // @include     http://www.rottentomatoes.com/m/*
@@ -21,6 +21,8 @@
 // @include     http://sratim.co.il/view.php?*
 // @exclude     http://trak.tv/movie/*/*
 // @exclude     http://*.trak.tv/movie/*/*
+// @include     http://*.filmweb.pl/*
+// @include     http://filmweb.pl/*
 // ==/UserScript==
 
 var version = 9;
@@ -223,7 +225,9 @@ imdb = (function(){
     }
 
     function getId(){
-        return 'tt' + location.href.replace(/[^\d+]+/g, '');
+        var regex = new RegExp(/tt(\d+)/);
+        var id = location.href.match(regex)[0];
+        return id;
     }
 
     function getYear(){
@@ -420,7 +424,7 @@ tmdb = (function(){
      *      Returns TMDB id from the url.
      */
     function getTmdbId() {
-	var tmdb_id = location.href.match(/movie\/(\d+)/g)[0].substr(6);
+        var tmdb_id = location.href.match(/movie\/(\d+)/g)[0].substr(6);
         return tmdb_id;
     }
 
@@ -479,9 +483,11 @@ rotten = (function(){
         return mName;
     }
 
-    function getYear(){
-    	var title = document.getElementsByTagName('h1')[0].getElementsByTagName('span')[0].innerHTML;
-    	return title.match(/\((19|20)[\d]{2,2}\)/)[0].substr(1, 4);
+    function getYear() {
+        var rightCol = document.getElementById("movieSynopsis").parentNode.getElementsByTagName("div")[1];
+        var releaseDate = rightCol.getElementsByTagName("span")[0].getElementsByTagName("span")[0].attributes["content"];
+
+        return releaseDate.value.substr(0, 4);
     }
 
     function constructor(){
@@ -529,6 +535,54 @@ youtheater = (function(){
     return constructor;
 })();
 
+filmweb = (function(){
+    var obj = this;
+
+    function isMovie(){
+        var filmType = document.getElementById('filmType').innerHTML;
+        // 0 movie, 1 tv movie, 2 tv series
+        return filmType < 2;
+    }
+
+    function getName(){
+        // polish or original title if there is no polish one
+        var title = document.getElementsByTagName('title')[0].text.match(/^(.+) \(\d{4}\) (- .+ )?- Filmweb$/)[1];
+        var titleLen = title.length;
+        var metas = document.getElementsByTagName('meta');
+        obj = null;
+        for (i = 0; i < metas.length; i ++) {
+            obj = metas[i];
+            if (obj.content.length >= titleLen) {
+                if (obj.content == title) {
+                    break;
+                } else if (obj.content.substr(titleLen,  3) == ' / ') {
+                    // original title exists
+                    title = obj.content.match(/^.+ \/ (.+)$/)[1];
+                    break;
+                }
+            }
+        }
+        // adding 'The' from back to front
+        var theTitle = title.match(/^(.+), The$/);
+        if (theTitle != null) {
+            title = 'The ' + theTitle[1];
+        }
+        return title;
+    }
+
+    function getYear(){
+        return document.getElementById('filmYear').innerHTML.match(/^ \((\d{4})\) (TV)?$/)[1];
+//      return document.getElementsByTagName('title')[0].text.match(/^.+ \((\d{4})\) (- .+ )?- Filmweb$/)[1];
+    }
+
+    function constructor(){
+        if(isMovie()){
+            tmdb_api.MovieSearch(getName(), getYear());
+        }
+    }
+    return constructor;
+})();
+
 
 // Start
 (function(){
@@ -543,7 +597,8 @@ youtheater = (function(){
         "allocine.fr" : allocine,
         "rottentomatoes.com" : rotten,
         "youtheater.com": youtheater,
-        "sratim.co.il": youtheater
+        "sratim.co.il": youtheater,
+        "filmweb.pl": filmweb
     };
     
     for (var i in factory){

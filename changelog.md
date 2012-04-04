@@ -1,14 +1,18 @@
 CouchPotato
 =====
 
+Version 37 (not release):
 
-Version 35-German
+* [See diff](https://github.com/RuudBurger/CouchPotato/compare/8d652f7044cffd28c88bbcf14897c8fe4a9de5c7...master)
 
-* added few fixes for German user
+Version 36:
 
-Version 35 (not released):
+* [See diff for changes](https://github.com/RuudBurger/CouchPotato/compare/fd6cb0b870ff39e70b26aea6cbaeeebf4a07773c...8d652f7044cffd28c88bbcf14897c8fe4a9de5c7)
 
-* [See diff](https://github.com/RuudBurger/CouchPotato/compare/6ef1e06b33711bcb122c2520fc8c12b2f4b20df4...master)
+Version 35:
+
+* I'm lazy ;)
+* [See diff](https://github.com/RuudBurger/CouchPotato/compare/6ef1e06b33711bcb122c2520fc8c12b2f4b20df4...fd6cb0b870ff39e70b26aea6cbaeeebf4a07773c)
 
 
 Version 34:

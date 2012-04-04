@@ -14,8 +14,10 @@ class newzbin(nzbBase):
     """Api for newzbin"""
 
     name = 'Newzbin'
-    searchUrl = 'https://www.newzbin.com/search/'
-    downloadUrl = 'http://www.newzbin.com/api/dnzb/'
+    searchUrl = 'https://www.newzbin2.es/search/'
+    downloadUrl = 'http://www.newzbin2.es/api/dnzb/'
+    REPORT_NS_OLD = 'http://www.newzbin.com/DTD/2007/feeds/report/'
+    REPORT_NS = 'http://www.newzbin2.es/DTD/2007/feeds/report/'
 
     formatIds = {
         2: ['scr'],
@@ -107,12 +109,15 @@ class newzbin(nzbBase):
                     title = self.gettextelement(item, "title")
                     if 'error' in title.lower(): continue
 
-                    REPORT_NS = 'http://www.newzbin.com/DTD/2007/feeds/report/';
-
-                    # Add attributes to name
-                    for attr in item.find('{%s}attributes' % REPORT_NS):
+                    try:
+                      for attr in item.find('{%s}attributes' % self.REPORT_NS):
                         title += ' ' + attr.text
-
+                        REPORT_NS = self.REPORT_NS
+                    except:
+                      for attr in item.find('{%s}attributes' % self.REPORT_NS_OLD):
+                        title += ' ' + attr.text
+                        REPORT_NS = self.REPORT_NS_OLD
+                    
                     id = int(self.gettextelement(item, '{%s}id' % REPORT_NS))
                     size = str(int(self.gettextelement(item, '{%s}size' % REPORT_NS)) / 1024 / 1024) + ' mb'
                     date = str(self.gettextelement(item, '{%s}postdate' % REPORT_NS))
@@ -137,7 +142,7 @@ class newzbin(nzbBase):
 
                 return results
             except:
-                log.error('Failed to parse XML response from newzbin.com: %s' % traceback.format_exc())
+                log.error('Failed to parse XML response from newzbin2.es: %s' % traceback.format_exc())
 
         return results
 

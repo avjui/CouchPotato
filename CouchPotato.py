@@ -29,6 +29,8 @@ def server_start():
                  dest = 'daemonize', help = "Run the server as a daemon")
     p.add_option('-q', '--quiet', action = "store_true",
                  dest = 'quiet', help = "Don't log to console")
+    p.add_option('--nolaunch', action = "store_true",
+                 dest = 'nolaunch', help="Don't start browser")
     p.add_option('-p', '--pidfile',
                  dest = 'pidfile', default = None,
                  help = "Store the process id in the given file")
@@ -38,10 +40,13 @@ def server_start():
     p.add_option('--datadir',
                  dest = 'datadir', default = None,
                  help = "Path to the data directory")
+    p.add_option('--port',
+                 dest = 'port', default = None,
+                 help = "Force webinterface to listen on this port")
 
 
     options, args = p.parse_args()
-    
+
     if options.datadir:
         datadir = options.datadir
 
@@ -50,15 +55,15 @@ def server_start():
 
     else:
         datadir = rundir
-	
+
     datadir = os.path.abspath(datadir)
     
     if not os.access(datadir, os.W_OK):
         raise SystemExit("Data dir must be writeable '" + datadir + "'")
-    
+
     import app.config
     app.config.DATADIR = datadir
-   
+
     if options.config:
         config = options.config
     else:
@@ -77,7 +82,7 @@ def server_start():
 
     # Configure logging
     from app.config.cplog import CPLog
-    
+
     # Setup logging
     debug = os.path.isfile(os.path.join(datadir, 'debug.conf'))
     log = CPLog()
@@ -91,7 +96,8 @@ def server_start():
     # Stop logging
     if options.quiet or options.daemonize:
         cherrypy.config.update({'log.screen': False})
-    
+    else:
+        cherrypy.config.update({'log.screen': True})
 
     # Config app
     from app.config.configApp import configApp
@@ -106,15 +112,21 @@ def server_start():
     from app.config.updater import Updater
     from cherrypy.process import plugins
 
+    # setup hostaddress
+    if options.port:
+        port = int(options.port)
+    else:
+        port = int(ca.get('global', 'port'))
+
     # Check an see if CP is already running
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = ca.get('global', 'host')
-    port = int(ca.get('global', 'port'))
     try:
         s.connect((host, port))
         s.shutdown(0)
-        app.launchBrowser(host, port)
+        if not options.nolaunch:
+            app.launchBrowser(host, port)
         return
     except:
         pass
@@ -131,7 +143,7 @@ def server_start():
     cherrypy.config.update({
         'global': {
             'server.thread_pool': 10,
-            'server.socket_port': int(ca.get('global', 'port')),
+            'server.socket_port': port,
             'server.socket_host': ca.get('global', 'host'),
             'server.environment': ca.get('global', 'server.environment'),
             'engine.autoreload_on': ca.get('global', 'server.environment') == 'development',
@@ -212,6 +224,8 @@ def server_start():
 
     # Setup the signal handler
     if hasattr(cherrypy.engine, "signal_handler"):
+        if not options.quiet and not options.daemonize:
+           cherrypy.engine.signal_handler.set_handler(signal='SIGINT', listener=cherrypy.engine.signal_handler.bus.exit)
         cherrypy.engine.signal_handler.subscribe()
     if hasattr(cherrypy.engine, "console_control_handler"):
         cherrypy.engine.console_control_handler.subscribe()
@@ -224,8 +238,9 @@ def server_start():
     else:
 
         # Launch browser
-        if ca.get('global', 'launchbrowser'):
-            app.launchBrowser(ca.get('global', 'host'), ca.get('global', 'port'))
+        if not options.nolaunch:
+            if ca.get('global', 'launchbrowser'):
+                app.launchBrowser(ca.get('global', 'host'), port)
 
         cherrypy.engine.block()
 

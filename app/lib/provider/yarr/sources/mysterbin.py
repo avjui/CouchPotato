@@ -3,26 +3,27 @@ from app.lib.provider.yarr.base import torrentBase
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib import quote_plus
 from urllib2 import URLError
+import re
 import time
 import urllib
 import urllib2
 
 log = CPLog(__name__)
 
-class x264(torrentBase):
-    """Provider for #alt.binaries.hdtv.x264 @ EFnet"""
+class mysterbin(torrentBase):
+    """Provider for MysterBin"""
 
-    name = 'x264'
-    searchUrl = 'http://85.214.105.230/x264/requests.php?release=%s&status=FILLED&age=1300&sort=ID'
-    downloadUrl = 'http://85.214.105.230/get_nzb.php?id=%s&section=hd'
+    name = 'mysterbin'
+    searchUrl = 'http://www.mysterbin.com/search?q=%s&fytype=1&fsize=6'
+    downloadUrl = 'http://www.mysterbin.com/nzb?c=%s'
 
     def __init__(self, config):
-        log.info('Using #alt.binaries.hdtv.x264@EFnet provider')
+        log.info('Using Mystery Bin')
 
         self.config = config
 
     def conf(self, option):
-        return self.config.get('x264', option)
+        return self.config.get('mysterbin', option)
 
     def enabled(self):
         return self.conf('enabled') and self.config.get('NZB', 'enabled')
@@ -45,16 +46,19 @@ class x264(torrentBase):
         try:
             tables = SoupStrainer('table')
             html = BeautifulSoup(data, parseOnlyThese = tables)
-            resultTable = html.find('table', attrs = {'class':'requests'})
-            for result in resultTable.findAll('tr', attrs = {'class':'req_filled'}):
+            resultable = html.find('table', attrs = {'class':'t'})
+            for result in resultable.findAll('span', attrs = {'class':'cname'}):
                 new = self.feedItem()
-
-                id = result.find('td', attrs = {'class':'reqid'})
-                new.id = id.contents[0]
-                name = result.find('td', attrs = {'class':'release'})
-                new.name = self.toSaveString(name.contents[0])
+                a = result.find('a')
+                id = re.search('(?<=detail\?c\=)\w+', a['href'])
+                new.id = id.group(0)
+                text = a.findAll(text = True)
+                words = ''
+                for text in a.findAll(text = True):
+                    words = words + unicode(text).encode('utf-8')
+                new.name = words
                 new.size = 9999
-                new.content = 'x264'
+                new.content = 'mysterbin'
                 new.type = 'nzb'
                 new.url = self.downloadUrl % (new.id)
                 new.date = time.time()
@@ -82,7 +86,7 @@ class x264(torrentBase):
             log.error('Failed to open %s.' % url)
             return ''
 
-        tables = SoupStrainer('table')
-        html = BeautifulSoup(data)
-        movieInformation = html.find('div', attrs = {'class':'i_info'})
-        return str(movieInformation).decode("utf-8", "replace")
+        return ''
+
+
+

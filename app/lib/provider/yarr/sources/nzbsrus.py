@@ -48,6 +48,7 @@ class nzbsRus(nzbBase):
             return results
 
         catId = self.getCatId(type)
+        subCatId = None
         if catId in self.subCats:
             subCatId = self.getCatId(type)
 
@@ -120,7 +121,7 @@ class nzbsRus(nzbBase):
                     new.score = self.calcScore(new, movie)
                     new.checkNZB = True
 
-                    if self.isCorrectMovie(new, movie, type, imdbResults = True):
+                    if self.isCorrectMovie(new, movie, type):
                         results.append(new)
                         log.info('Found: %s' % new.name)
 
